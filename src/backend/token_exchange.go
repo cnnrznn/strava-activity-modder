@@ -18,7 +18,7 @@ const (
 
 type TokenExchange struct {
 	ClientSecret string
-	Conn         db.Database
+	db           db.Database
 }
 
 func NewTokenExchange() (*TokenExchange, error) {
@@ -74,5 +74,5 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	at := obj["access_token"].(string)
 	ea := obj["expires_at"].(float64)
 
-	te.Conn.StoreTokens(rt, at, ea)
+	te.db.StoreTokens(rt, at, ea)
 }
