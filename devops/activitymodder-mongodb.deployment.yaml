@@ -8,18 +8,18 @@ apiVersion: apps/v1
 metadata:
   name: activitymodder-mongodb
   labels:
-    app: acitivitymodder
+    app: activitymodder
     tier: db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: acitivitymodder
+      app: activitymodder
       tier: db
   template:
     metadata:
       labels:
-        app: acitivitymodder
+        app: activitymodder
         tier: db
     spec:
       containers:

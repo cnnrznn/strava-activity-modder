@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: acivitymodder-mongodb
+  name: activitymodder-mongodb
   labels:
     app: activitymodder
     tier: db

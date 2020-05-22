@@ -22,8 +22,8 @@ spec:
         image: mongo:4
         command: ['/bin/sh', '-c']
         args:
-          - echo "Waiting for mongodb at go-activitymodder-mongodb:27017 to go live before the BE..."; 
-          - until (mongo --host go-activitymodder-mongodb:27017 >/dev/null) do echo "Waiting for connection for 2 sec."; sleep 2; done
+          - echo "Waiting for mongodb at activitymodder-mongodb:27017 to go live before the BE..."; 
+          - until (mongo --host activitymodder-mongodb:27017 >/dev/null) do echo "Waiting for connection for 2 sec."; sleep 2; done
       containers:
       - name: backend
         image: activitymodder-backend
@@ -31,5 +31,5 @@ spec:
         - name: http-server
           containerPort: 8080
         env:
-        - name: DB_URI 
-          value: mongo://activitymodder-mongodb:27017
+        - name: MONGO_URI 
+          value: mongodb://activitymodder-mongodb:27017
