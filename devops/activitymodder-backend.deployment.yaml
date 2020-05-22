@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: activitymodder-backend
+  labels:
+    app: activitymodder
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: activitymodder
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: activitymodder
+        tier: backend
+    spec:
+      initContainers:
+      - name: init-db-ready
+        image: mongo:4
+        command: ['/bin/sh', '-c']
+        args:
+          - echo "Waiting for mongodb at go-activitymodder-mongodb:27017 to go live before the BE..."; 
+          - until (mongo --host go-activitymodder-mongodb:27017 >/dev/null) do echo "Waiting for connection for 2 sec."; sleep 2; done
+      containers:
+      - name: backend
+        image: activitymodder-backend
+        ports:
+        - name: http-server
+          containerPort: 8080
+        env:
+        - name: DB_URI 
+          value: mongo://activitymodder-mongodb:27017
