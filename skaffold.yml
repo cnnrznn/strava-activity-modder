@@ -1,0 +1,15 @@
+apiVersion: skaffold/v1beta15
+kind: Config
+build:
+  artifacts:
+  - image: activitymodder-backend
+    context: src/backend
+  - image: activitymodder-frontend
+    context: src/frontend
+  tagPolicy:
+    sha256: {}
+deploy:
+  kubectl:
+    manifests:
+    - ./devops/*.service.yaml
+    - ./devops/*.deployment.yaml
