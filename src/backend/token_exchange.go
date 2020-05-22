@@ -12,12 +12,13 @@ import (
 
 const (
 	wantScope = "read,activity:write,profile:read_all"
-	clientId  = "48402"
+	clientID  = "48402"
 	urlToken  = "https://www.strava.com/api/v3/oauth/token"
 )
 
 type TokenExchange struct {
 	ClientSecret string
+	Conn         *db.Conn
 }
 
 func NewTokenExchange() (*TokenExchange, error) {
@@ -30,6 +31,7 @@ func NewTokenExchange() (*TokenExchange, error) {
 
 	return &TokenExchange{
 		ClientSecret: string(bytes),
+		Conn:         db.New(),
 	}, nil
 }
 
@@ -45,7 +47,7 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// GET request for tokens
 	q := url.Values{}
-	q.Set("client_id", clientId)
+	q.Set("client_id", clientID)
 	q.Set("client_secret", te.ClientSecret)
 	q.Set("code", code)
 	q.Set("grant_type", "authorization_code")
@@ -73,5 +75,5 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	at := obj["access_token"].(string)
 	ea := obj["expires_at"].(float64)
 
-	db.StoreTokens(rt, at, ea)
+	te.Conn.StoreTokens(rt, at, ea)
 }
