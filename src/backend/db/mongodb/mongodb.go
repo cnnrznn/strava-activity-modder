@@ -32,5 +32,6 @@ func New() *Mongodb {
 }
 
 func (db *Mongodb) StoreTokens(refresh, access string, expires float64) error {
+	log.Println(refresh, access, expires)
 	return nil
 }

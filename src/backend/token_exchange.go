@@ -8,6 +8,7 @@ import (
 	"net/url"
 
 	"github.com/cnnrznn/strava-activity-modder/src/backend/db"
+	"github.com/cnnrznn/strava-activity-modder/src/backend/db/mongodb"
 )
 
 const (
@@ -31,6 +32,7 @@ func NewTokenExchange() (*TokenExchange, error) {
 
 	return &TokenExchange{
 		ClientSecret: string(bytes),
+		db:           mongodb.New(),
 	}, nil
 }
 
