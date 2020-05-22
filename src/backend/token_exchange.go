@@ -18,7 +18,7 @@ const (
 
 type TokenExchange struct {
 	ClientSecret string
-	Conn         *db.Conn
+	Conn         db.Database
 }
 
 func NewTokenExchange() (*TokenExchange, error) {
@@ -31,7 +31,6 @@ func NewTokenExchange() (*TokenExchange, error) {
 
 	return &TokenExchange{
 		ClientSecret: string(bytes),
-		Conn:         db.New(),
 	}, nil
 }
 
