@@ -3,24 +3,24 @@ package memory
 import "sync"
 
 type user struct {
-	id           string
+	id           int
+	expires      int
 	refreshToken string
 	accessToken  string
-	expires      float64
 }
 
 type MemoryDB struct {
-	table map[string]user
+	table map[int]user
 	sync.Mutex
 }
 
 func New() *MemoryDB {
 	return &MemoryDB{
-		table: make(map[string]user),
+		table: make(map[int]user),
 	}
 }
 
-func (db *MemoryDB) StoreTokens(id, refresh, access string, expires float64) error {
+func (db *MemoryDB) StoreTokens(refresh, access string, id, expires int) error {
 	db.Lock()
 	defer db.Unlock()
 
