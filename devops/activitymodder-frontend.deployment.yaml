@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: activitymodder-frontend
+  labels:
+    app: activitymodder
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: activitymodder
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: activitymodder
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: activitymodder-frontend
+        ports:
+        - name: http-server
+          containerPort: 8080
