@@ -72,10 +72,12 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	id := obj["athlete"].(string)
+	log.Println(obj)
+
+	id := int(obj["athlete"].(map[string]interface{})["id"].(float64))
 	rt := obj["refresh_token"].(string)
 	at := obj["access_token"].(string)
-	ea := obj["expires_at"].(float64)
+	ea := int(obj["expires_at"].(float64))
 
-	te.db.StoreTokens(id, rt, at, ea)
+	te.db.StoreTokens(rt, at, id, ea)
 }
