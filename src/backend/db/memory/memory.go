@@ -14,7 +14,13 @@ type MemoryDB struct {
 	sync.Mutex
 }
 
-func (db *MemoryDB) StoreToken(id, refresh, access string, expires float64) error {
+func New() *MemoryDB {
+	return &MemoryDB{
+		table: make(map[string]user),
+	}
+}
+
+func (db *MemoryDB) StoreTokens(id, refresh, access string, expires float64) error {
 	db.Lock()
 	defer db.Unlock()
 

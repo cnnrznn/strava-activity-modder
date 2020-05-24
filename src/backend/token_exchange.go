@@ -8,7 +8,7 @@ import (
 	"net/url"
 
 	"github.com/cnnrznn/strava-activity-modder/src/backend/db"
-	"github.com/cnnrznn/strava-activity-modder/src/backend/db/mongodb"
+	"github.com/cnnrznn/strava-activity-modder/src/backend/db/memory"
 )
 
 const (
@@ -32,7 +32,7 @@ func NewTokenExchange() (*TokenExchange, error) {
 
 	return &TokenExchange{
 		ClientSecret: string(bytes),
-		db:           mongodb.New(),
+		db:           memory.New(),
 	}, nil
 }
 
@@ -72,9 +72,10 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	id := obj["athlete"].(string)
 	rt := obj["refresh_token"].(string)
 	at := obj["access_token"].(string)
 	ea := obj["expires_at"].(float64)
 
-	te.db.StoreTokens(rt, at, ea)
+	te.db.StoreTokens(id, rt, at, ea)
 }
