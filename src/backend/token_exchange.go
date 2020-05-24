@@ -80,4 +80,12 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ea := int(obj["expires_at"].(float64))
 
 	te.db.StoreTokens(rt, at, id, ea)
+
+	pobj, err := json.MarshalIndent(obj, "", "  ")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(pobj)
 }
