@@ -10,11 +10,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Mongodb struct {
+type MongoDB struct {
 	conn *mongo.Client
 }
 
-func New() *Mongodb {
+func New() *MongoDB {
 	uri := os.Getenv("MONGO_URI")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
@@ -26,12 +26,12 @@ func New() *Mongodb {
 		log.Fatal(err)
 	}
 
-	return &Mongodb{
+	return &MongoDB{
 		conn: conn,
 	}
 }
 
-func (db *Mongodb) StoreTokens(refresh, access string, expires float64) error {
+func (db *MongoDB) StoreTokens(refresh, access string, expires float64) error {
 	log.Println(refresh, access, expires)
 	return nil
 }
