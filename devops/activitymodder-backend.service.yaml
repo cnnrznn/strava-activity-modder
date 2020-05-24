@@ -7,6 +7,7 @@ metadata:
     tier: backend
 spec:
   type: LoadBalancer
+  loadBalancerIP: 35.231.72.231
   selector:
     app: activitymodder
     tier: backend
