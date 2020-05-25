@@ -11,7 +11,7 @@ func redirect(w http.ResponseWriter, req *http.Request) {
 	params.Set("client_id", "48402")
 	params.Set("redirect_uri", "http://auth.activitymodder.com")
 	params.Set("response_type", "code")
-	params.Set("scope", "activity:read,activity:write")
+	params.Set("scope", "activity:read_all,activity:write")
 	q := params.Encode()
 	http.Redirect(w, req, "https://strava.com/api/v3/oauth/authorize?"+q, http.StatusTemporaryRedirect)
 }

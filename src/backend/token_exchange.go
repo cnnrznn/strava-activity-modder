@@ -8,11 +8,10 @@ import (
 	"net/url"
 
 	"github.com/cnnrznn/strava-activity-modder/src/backend/db"
-	"github.com/cnnrznn/strava-activity-modder/src/backend/db/memory"
 )
 
 const (
-	wantScope = "read,activity:write,activity:read"
+	wantScope = "read,activity:write,activity:read_all"
 	clientID  = "48402"
 	urlToken  = "https://www.strava.com/api/v3/oauth/token"
 )
@@ -22,7 +21,7 @@ type TokenExchange struct {
 	db           db.Database
 }
 
-func NewTokenExchange() (*TokenExchange, error) {
+func NewTokenExchange(db db.Database) (*TokenExchange, error) {
 	// read client secret file
 	bytes, err := ioutil.ReadFile("client_secret.txt")
 	if err != nil {
@@ -32,7 +31,7 @@ func NewTokenExchange() (*TokenExchange, error) {
 
 	return &TokenExchange{
 		ClientSecret: string(bytes),
-		db:           memory.New(),
+		db:           db,
 	}, nil
 }
 
