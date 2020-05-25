@@ -12,7 +12,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http.Handle("/token_exchange", te)
+	http.Handle("/", te)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

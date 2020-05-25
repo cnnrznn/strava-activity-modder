@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	wantScope = "read,activity:write,profile:read_all"
+	wantScope = "read,activity:write,activity:read"
 	clientID  = "48402"
 	urlToken  = "https://www.strava.com/api/v3/oauth/token"
 )
@@ -40,6 +40,7 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	values := req.URL.Query()
 	code := values.Get("code")
 	scope := values.Get("scope")
+	log.Println(values)
 
 	if scope != wantScope {
 		http.Error(w, "We need more permissions", http.StatusBadRequest)
@@ -52,6 +53,7 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	q.Set("client_secret", te.ClientSecret)
 	q.Set("code", code)
 	q.Set("grant_type", "authorization_code")
+	log.Println(q.Encode())
 
 	resp, err := http.PostForm(urlToken, q)
 	if err != nil {
