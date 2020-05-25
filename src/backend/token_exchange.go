@@ -40,7 +40,6 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	values := req.URL.Query()
 	code := values.Get("code")
 	scope := values.Get("scope")
-	log.Println(values)
 
 	if scope != wantScope {
 		http.Error(w, "We need more permissions", http.StatusBadRequest)
@@ -53,7 +52,6 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	q.Set("client_secret", te.ClientSecret)
 	q.Set("code", code)
 	q.Set("grant_type", "authorization_code")
-	log.Println(q.Encode())
 
 	resp, err := http.PostForm(urlToken, q)
 	if err != nil {
@@ -73,8 +71,6 @@ func (te *TokenExchange) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Failed to parse access tokens", http.StatusInternalServerError)
 		return
 	}
-
-	log.Println(obj)
 
 	id := int(obj["athlete"].(map[string]interface{})["id"].(float64))
 	rt := obj["refresh_token"].(string)
