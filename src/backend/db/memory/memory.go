@@ -1,6 +1,9 @@
 package memory
 
-import "sync"
+import (
+	"errors"
+	"sync"
+)
 
 type user struct {
 	id           int
@@ -32,4 +35,15 @@ func (db *MemoryDB) StoreTokens(refresh, access string, id, expires int) error {
 	}
 
 	return nil
+}
+
+func (db *MemoryDB) GetAccessToken(athleteID int) (string, error) {
+	db.Lock()
+	defer db.Unlock()
+
+	if ath, ok := db.table[athleteID]; ok {
+		return ath.accessToken, nil
+	} else {
+		return "", errors.New("Athlete not in DB")
+	}
 }
