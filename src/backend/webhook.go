@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -71,26 +72,68 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 	}
 	defer resp.Body.Close()
 
-	var fields map[string]interface{}
+	var activity map[string]interface{}
 	dec := json.NewDecoder(resp.Body)
 
-	if err := dec.Decode(&fields); err != nil {
+	if err := dec.Decode(&activity); err != nil {
 		log.Println(err)
 		return
 	}
 
-	mt := int(fields["moving_time"].(float64))
-	sp := fields["average_speed"].(float64)
+	mt := int(activity["moving_time"].(float64))
+	sp := activity["average_speed"].(float64)
 
 	duration := time.Duration(mt) * time.Second
-	speed := sp / 1000
-	newName := fmt.Sprintf("%v @ %v kph", duration, speed)
+	speed := (sp * 3600) / 1000 // meters per second to kilometers per hour
+	newName := fmt.Sprintf("%v @ %.1f kph", duration, speed)
 
-	log.Println(newName)
-	log.Println(fields)
+	log.Printf("Renaming %v to %v\n", activity["name"], newName)
+	log.Println(activity)
+
+	updateAct, err := json.Marshal(map[string]interface{}{
+		"commute":     activity["commute"],
+		"trainer":     activity["trainer"],
+		"description": activity["description"],
+		"name":        newName,
+		"type":        activity["type"],
+		"gear_id":     activity["gear_id"],
+	})
+
+	log.Println(updateAct)
 
 	q.Del("include_all_efforts")
-	//req, err := http.NewRequest("POST", fmt.Sprintf("https://www.strava.com/api/v3/activities/%v?", activityID)+q.Encode(),
+	req, err = http.NewRequest(http.MethodPut, fmt.Sprintf("https://www.strava.com/api/v3/activities/%v?", activityID)+q.Encode(), bytes.NewReader(updateAct))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", at))
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err = client.Do(req)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	log.Println("Put request code: ", resp.Status)
+
+	dec = json.NewDecoder(resp.Body)
+
+	if err := dec.Decode(&activity); err != nil {
+		log.Println(err)
+		return
+	}
+
+	b, err := json.MarshalIndent(activity, "", "  ")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println(string(b))
 }
 
 func (wh *Webhook) handleChallenge(w http.ResponseWriter, r *http.Request) {
