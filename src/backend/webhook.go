@@ -13,6 +13,16 @@ import (
 	"github.com/cnnrznn/strava-activity-modder/src/backend/db"
 )
 
+type Webhook struct {
+	db db.Database
+}
+
+func NewWebhook(db db.Database) (*Webhook, error) {
+	return &Webhook{
+		db: db,
+	}, nil
+}
+
 func (wh *Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -62,7 +72,6 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 		log.Println(err)
 		return
 	}
-
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", at))
 
 	resp, err := client.Do(req)
@@ -80,15 +89,23 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 		return
 	}
 
-	mt := int(activity["moving_time"].(float64))
-	sp := activity["average_speed"].(float64)
+	movingTime := activity["moving_time"].(float64)
+	distance := activity["distance"].(float64)
+	averageSpeed := activity["average_speed"].(float64) * 3600 / 1000
 
-	duration := time.Duration(mt) * time.Second
-	speed := (sp * 3600) / 1000 // meters per second to kilometers per hour
-	newName := fmt.Sprintf("%v @ %.1f kph", duration, speed)
+	var rate string
+	duration := time.Duration(movingTime) * time.Second
+	switch activity["type"] {
+	case "Ride":
+		rate = fmt.Sprintf("%.1fw", activity["average_watts"].(float64))
+	case "Run":
+		rate = fmt.Sprintf("%v min/k", (movingTime/60)/(distance/1000))
+	default:
+		rate = fmt.Sprintf("%.1fkph", averageSpeed)
+	}
+	newName := fmt.Sprintf("%v @ %v", duration, rate)
 
 	log.Printf("Renaming %v to %v\n", activity["name"], newName)
-	log.Println(activity)
 
 	updateAct, err := json.Marshal(map[string]interface{}{
 		"commute":     activity["commute"],
@@ -99,15 +116,12 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 		"gear_id":     activity["gear_id"],
 	})
 
-	log.Println(updateAct)
-
 	q.Del("include_all_efforts")
 	req, err = http.NewRequest(http.MethodPut, fmt.Sprintf("https://www.strava.com/api/v3/activities/%v?", activityID)+q.Encode(), bytes.NewReader(updateAct))
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", at))
 	req.Header.Add("Content-Type", "application/json")
 
@@ -118,7 +132,7 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 	}
 	defer resp.Body.Close()
 
-	log.Println("Put request code: ", resp.Status)
+	log.Println("Put response code: ", resp.Status)
 
 	dec = json.NewDecoder(resp.Body)
 
@@ -146,14 +160,4 @@ func (wh *Webhook) handleChallenge(w http.ResponseWriter, r *http.Request) {
 	enc.Encode(map[string]string{
 		"hub.challenge": c,
 	})
-}
-
-type Webhook struct {
-	db db.Database
-}
-
-func NewWebhook(db db.Database) (*Webhook, error) {
-	return &Webhook{
-		db: db,
-	}, nil
 }
