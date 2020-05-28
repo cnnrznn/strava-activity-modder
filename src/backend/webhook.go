@@ -97,7 +97,7 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 	duration := time.Duration(movingTime) * time.Second
 	switch activity["type"] {
 	case "Run":
-		rate = fmt.Sprintf("%v min/k", (movingTime/60)/(distance/1000))
+		rate = fmt.Sprintf("%.1f min/k", (movingTime/60)/(distance/1000))
 	case "Ride":
 		wattsP := activity["average_watts"]
 		if wattsP != nil {
