@@ -89,6 +89,10 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 		return
 	}
 
+	if b, err := json.Marshal(activity); err != nil {
+		log.Println("The newly created activity:\n", string(b))
+	}
+
 	movingTime := activity["moving_time"].(float64)
 	distance := activity["distance"].(float64)
 	averageSpeed := activity["average_speed"].(float64) * 3600 / 1000
@@ -98,7 +102,7 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 	switch activity["type"] {
 	case "Run":
 		rate = fmt.Sprintf("%.1f min/k", (movingTime/60)/(distance/1000))
-	case "Ride":
+	case "Ride", "VirtualRide":
 		wattsP := activity["average_watts"]
 		if wattsP != nil {
 			rate = fmt.Sprintf("%.1fw", wattsP.(float64))
