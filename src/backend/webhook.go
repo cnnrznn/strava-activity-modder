@@ -146,7 +146,7 @@ func (wh *Webhook) renameActivity(athleteID, activityID int) {
 		return
 	}
 
-	b, err := json.MarshalIndent(activity, "", "  ")
+	b, err := json.Marshal(activity)
 	if err != nil {
 		log.Println(err)
 		return
